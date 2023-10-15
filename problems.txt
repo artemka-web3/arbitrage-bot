@@ -1,0 +1,26 @@
+pantheon = 1,7 usdc
+pantheon = 6 scale
+
+
+Pair Usage
+1) 10 pantheon =  0 usdc
+all is okay with scale
+
+Router
+1) 10 pantheon = 0 usdc
+all is okay with scale
+
+Alghoritm:
+1.
+if $(pantheon -> usdc) > $(pantheon -> scale)
+if $(usdc -> pantheon) > $(scale -> pantheon) {pre: knowing scale / usdc ratio}
+    swap scale on pantheon and swap pantheon on usdc
+else if $(usdc -> pantheon) < $(scale -> pantheon)
+    swap usdc pantheon and swap pantheon on scale
+
+2.
+ETH mint price => $ mint price
+while $(pantheon -> usdc) > $(mint price)
+    mint pantheon 
+    swap pantheon on usdc
+
