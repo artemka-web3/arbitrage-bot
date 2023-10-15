@@ -2,3 +2,6 @@
 path = toying
 url = [https://github.com/artemka-web3/arbitrage-contracts.git]
 
+[submodule "contracts"]
+	path = contracts
+	url = https://github.com/artemka-web3/arbitrage-contracts.git
