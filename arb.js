@@ -105,7 +105,6 @@ async function getGasInDollars(gasAmount){
 }
 
 
-getGasInDollars();
 
 
 // scaleToPantheonToUSDC
@@ -233,4 +232,4 @@ async function mainLoop() {
   }
 }
 
-// setInterval(mainLoop, interval);
+setInterval(mainLoop, interval);
