@@ -9,6 +9,10 @@ const ARBITRAGE_BOT_ADDRESS = ""; // Replace with your ARBITRAGE_BOT contract ad
 const PANTHEON_ADDRESS = "0x993cd9c0512cfe335bc7eF0534236Ba760ea7526";
 const arbContract = new ethers.Contract(ARBITRAGE_BOT_ADDRESS, ARBITRAGE_BOT_ABI, provider);
 const pantheonContract = new ethers.Contract(PANTHEON_ADDRESS, PANTHEON_ABI, provider);
+const profitFromMintGas = 743688;
+const profitFromRedeemGas = 746748;
+const usdcToPantheonToScaleGas = 918562;
+const scaleToPantheonToUsdcGas = 914252;
 
 
 async function getMintPriceInUSDC() {
@@ -93,6 +97,15 @@ async function getUsdcBalance(){
   return usdcBalance;
 }
 
+async function getGasInDollars(gasAmount){
+  gasPrice = await provider.getGasPrice()
+  gasReturn = await getEthPriceInUSDC(parseFloat(ethers.utils.formatUnits(gasPrice, 18)));
+  console.log(gasReturn * gasAmount)
+  return gasReturn;
+}
+
+
+getGasInDollars();
 
 
 // scaleToPantheonToUSDC
@@ -161,6 +174,13 @@ async function mainLoop() {
   try {
     const prices = await getAllPrices(); // Fetch prices
     let amountIn18 = await getScaleBalance();
+    let dollarGasUsdcToPantheonToScale = await getGasInDollars(usdcToPantheonToScaleGas);
+    let dollarGasScaleToPantheonToUsdc = await getGasInDollars(scaleToPantheonToUsdcGas); 
+    let dollarGasProfitFromMint = await getGasInDollars(profitFromMintGas); 
+    let dollarGasProfitFromRedeem = await getGasInDollars(profitFromRedeemGas); 
+
+
+
     amountIn18 = amountIn18 * 0.1;
     amountIn18 = ethers.utils.parseUnits(`${amountIn18}`, 18);
   
@@ -187,24 +207,24 @@ async function mainLoop() {
 
 
     // Compare panthen_usdc[1] and panthen_scale[0]
-    if (prices[0] > prices[1]) {
+    if (prices[0] > prices[1] && prices[0] - prices[1 > dollarGasScaleToPantheonToUsdc]) {
       // Call scaleToPantheonToUSDC
       await scaleToPantheonToUSDC(amountIn18, 0, 0);
-    } else if (prices[0] < prices[1]){
+    } else if (prices[0] < prices[1] && prices[1] - prices[0] > dollarGasUsdcToPantheonToScale){
       // Call UsdcToPantheonToScale
       await UsdcToPantheonToScale(amountIn6, 0);
     }
 
     // Compare getMintPrice and panthen_usdc[1]
     const mintPrice = await getMintPrice();
-    if (mintPrice < prices[0]) {
+    if (mintPrice < prices[0] && prices[0] - mintPrice > dollarGasProfitFromMint) {
       // Call ProfitFromMint
       await ProfitFromMint(ethers_amount, pantheonAmountForMint);
     }
 
     // Compare getRedeemPrice and panthen_usdc[1]
     const redeemPrice = await getRedeemPrice();
-    if (prices[0] < redeemPrice) {
+    if (prices[0] < redeemPrice && redeemPrice - prices[0] > dollarGasProfitFromRedeem) {
       // Call ProfitFromRedeem
       await ProfitFromRedeem(usdcAmount, pantheonAmountForRedeem);
     }
@@ -213,4 +233,4 @@ async function mainLoop() {
   }
 }
 
-setInterval(mainLoop, interval);
+// setInterval(mainLoop, interval);
